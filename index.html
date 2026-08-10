@@ -641,8 +641,7 @@ function installAppsScriptBridgeShim() {
   window.google.script.run = makeScriptRunner();
 
   window.addEventListener("message", function (event) {
-    if (!bridgeFrame || event.source !== bridgeFrame.contentWindow) return;
-    var msg = event.data || {};
+  var msg = event.data || {};
     if (msg.type === "ACADEMY_BRIDGE_READY") {
       bridgeReady = true;
       var waiters = bridgeWaiters.slice();
