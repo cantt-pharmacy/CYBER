@@ -624,7 +624,11 @@ var editingUserEmail = "";
 // ── EXTERNAL HOST CONFIG ─────────────────────────────────────
 // This page is hosted on GitHub Pages. Apps Script remains the secure backend.
 var GOOGLE_CLIENT_ID = "173264253939-pl6esf9suk72htmr56m3sgbamsa7e9ta.apps.googleusercontent.com";
-var API_BRIDGE_URL = "https://script.google.com/macros/s/AKfycbz5XmDi15_REy6hz8Quq5HycgrG7-upBjBTbCl2NWYDNN7RuIp9uRNj2B0MIpgc5H609A/exec?bridge=1";
+var API_BRIDGE_BASE_URL = "https://script.google.com/macros/s/AKfycbz5XmDi15_REy6hz8Quq5HycgrG7-upBjBTbCl2NWYDNN7RuIp9uRNj2B0MIpgc5H609A/exec?bridge=1";
+var BRIDGE_TOKEN = (window.crypto && crypto.randomUUID)
+  ? crypto.randomUUID()
+  : (String(Date.now()) + "_" + Math.random().toString(36).slice(2));
+var API_BRIDGE_URL = API_BRIDGE_BASE_URL + "&bridgeToken=" + encodeURIComponent(BRIDGE_TOKEN);
 var bridgeFrame = null;
 var bridgeReady = false;
 var bridgeWaiters = [];
@@ -641,7 +645,8 @@ function installAppsScriptBridgeShim() {
   window.google.script.run = makeScriptRunner();
 
   window.addEventListener("message", function (event) {
-  var msg = event.data || {};
+    var msg = event.data || {};
+    if (msg.bridgeToken !== BRIDGE_TOKEN) return;
     if (msg.type === "ACADEMY_BRIDGE_READY") {
       bridgeReady = true;
       var waiters = bridgeWaiters.slice();
@@ -666,6 +671,14 @@ function installAppsScriptBridgeShim() {
   bridgeFrame.title = "Backend connection";
   bridgeFrame.setAttribute("aria-hidden", "true");
   bridgeFrame.style.cssText = "position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;";
+  bridgeFrame.addEventListener("load", function () {
+    try {
+      bridgeFrame.contentWindow.postMessage({
+        type: "ACADEMY_BRIDGE_INIT",
+        bridgeToken: BRIDGE_TOKEN
+      }, "*");
+    } catch (e) {}
+  });
   document.body.appendChild(bridgeFrame);
   bridgeFrame.src = API_BRIDGE_URL;
 }
