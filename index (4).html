@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Academy Student System</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-d:#1D4ED8;--purple:#7C3AED;
+  --green:#059669;--red:#DC2626;--amber:#D97706;
+  --bg:#F3F4F6;--surface:#FFFFFF;--border:#E5E7EB;
+  --text:#111827;--muted:#6B7280;--radius:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.06);
+  --font:'Segoe UI',system-ui,sans-serif
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--font);color:var(--text)}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;background:var(--surface);position:relative;overflow:hidden}
+.screen{display:none;flex-direction:column;height:100%;overflow:hidden}
+.screen.active{display:flex}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);min-height:60px;flex-shrink:0}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{width:38px;height:38px;border-radius:10px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center}
+.tb-logo img,.tb-logo svg{width:100%;height:100%}
+.tb-logo svg{width:22px;height:22px;fill:white}
+.tb-info h2{font-size:15px;font-weight:700;line-height:1.2}
+.tb-info span{font-size:11px;color:var(--muted)}
+.icon-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;display:flex;align-items:center}
+.icon-btn svg{width:22px;height:22px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* SCROLL */
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:28px}
+
+/* HOME */
+.home-hero{text-align:center;padding:32px 24px 20px}
+.hero-icon{width:72px;height:72px;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);border-radius:20px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+.hero-icon svg{width:38px;height:38px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.home-hero h1{font-size:22px;font-weight:800;margin-bottom:6px}
+.home-hero p{font-size:13px;color:var(--muted)}
+.home-stats{margin:0 16px 24px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;color:white}
+.stat-label{font-size:12px;opacity:.85;margin-bottom:4px}
+.stat-value{font-size:28px;font-weight:800}
+.stat-icon{width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.stat-icon svg{width:26px;height:26px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.menu-list{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.menu-card{display:flex;align-items:center;gap:16px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:transform .15s;box-shadow:var(--shadow);-webkit-tap-highlight-color:transparent}
+.menu-card:active{transform:scale(.97)}
+.menu-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-icon svg{width:26px;height:26px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.menu-text h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.menu-text p{font-size:12px;color:var(--muted)}
+.menu-arr{margin-left:auto}
+.menu-arr svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.c-blue{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+.c-purple{background:linear-gradient(135deg,#7C3AED,#6D28D9)}
+.c-green{background:linear-gradient(135deg,#059669,#047857)}
+
+/* BACK HEADER */
+.back-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.back-btn{background:var(--bg);border:none;cursor:pointer;padding:8px;border-radius:10px;display:flex;align-items:center}
+.back-btn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.back-hdr h2{font-size:17px;font-weight:700}
+
+/* FORMS */
+.form-body{padding:20px 16px}
+.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.fgroup{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:13px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{resize:vertical;min-height:68px}
+.field input[readonly]{background:var(--bg);color:var(--muted);cursor:not-allowed}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* PHOTO PICKER SECTION */
+.photo-section{margin-bottom:20px}
+.photo-preview-wrap{width:120px;height:120px;border-radius:16px;margin:0 auto 14px;border:3px dashed var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative}
+.photo-preview-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-preview-wrap .no-photo-icon svg{width:40px;height:40px;stroke:#D1D5DB;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.photo-preview-wrap.has-photo{border-style:solid;border-color:var(--green)}
+.photo-action-row{display:flex;gap:10px;justify-content:center}
+.photo-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);background:var(--bg);color:var(--text);transition:all .15s}
+.photo-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.photo-btn.primary-btn{background:var(--blue);color:white;border-color:var(--blue)}
+.photo-btn:active{transform:scale(.96)}
+.retake-link{text-align:center;font-size:12px;color:var(--red);cursor:pointer;margin-top:8px;font-weight:600}
+#camVideoWrap{margin-bottom:12px;display:none}
+#camVideo{width:100%;max-width:260px;border-radius:12px;background:#000;display:block;margin:0 auto}
+
+/* BUTTONS */
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:white;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.btn-danger{background:linear-gradient(135deg,var(--red),#B91C1C);color:white}
+.btn-outline{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+.btn-amber{background:linear-gradient(135deg,var(--amber),#B45309);color:white}
+.action-row{display:flex;gap:10px;padding:0 16px 28px}
+.action-row .btn{flex:1}
+
+/* MANAGE */
+.search-wrap{padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.search-box{display:flex;gap:8px;align-items:center;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px}
+.search-box svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.search-box input{flex:1;border:none;background:none;font-size:14px;color:var(--text);outline:none;font-family:var(--font)}
+.s-count{padding:10px 16px 4px;font-size:12px;color:var(--muted);font-weight:600;flex-shrink:0}
+.student-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.student-card:active{background:var(--bg)}
+.s-avatar{width:48px;height:48px;min-width:48px;border-radius:13px;object-fit:cover}
+.s-init{width:48px;height:48px;min-width:48px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white}
+.s-info{flex:1;min-width:0}
+.s-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-roll{font-size:12px;color:var(--muted);margin-top:2px}
+.s-cls{font-size:11px;background:#EEF2FF;color:var(--blue);padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block;margin-top:4px}
+.s-arr svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.empty-state{text-align:center;padding:60px 24px}
+.empty-state svg{width:64px;height:64px;stroke:var(--border);fill:none;stroke-width:1.5;margin-bottom:16px}
+.empty-state p{color:var(--muted);font-size:14px}
+.err-card{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:12px;margin:16px;padding:20px;text-align:center}
+.err-card p{color:var(--red);font-weight:600;font-size:14px}
+.err-card small{color:#991B1B;font-size:12px}
+
+/* DETAIL */
+.detail-hero{padding:24px 16px;text-align:center;border-bottom:1px solid var(--border)}
+.d-photo{width:110px;height:110px;border-radius:20px;object-fit:cover;margin:0 auto 14px;border:3px solid var(--border);display:block}
+.d-init{width:110px;height:110px;border-radius:20px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:white;margin:0 auto 14px}
+.detail-hero h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.d-roll{font-size:13px;color:var(--muted);margin-bottom:8px}
+.d-badge{display:inline-block;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.dfields{padding:20px 16px;display:flex;flex-direction:column;gap:12px}
+.drow{display:flex;align-items:flex-start;gap:14px;padding:14px;background:var(--bg);border-radius:12px}
+.drow-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.drow-icon svg{width:18px;height:18px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.drow-text label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.drow-text p{font-size:14px;font-weight:600;margin-top:2px}
+
+/* EDIT OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.overlay.hidden{display:none}
+.edit-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px 16px 32px}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px}
+.sheet-title{font-size:18px;font-weight:800;margin-bottom:20px}
+
+/* VERIFY */
+.verify-wrap{padding:24px 16px}
+.vsearch{display:flex;gap:10px;margin-bottom:24px}
+.vsearch input{flex:1;padding:13px 16px;border:2px solid var(--border);border-radius:12px;font-size:15px;font-family:var(--font);outline:none;transition:border-color .15s}
+.vsearch input:focus{border-color:var(--blue)}
+.vsearch button{padding:13px 18px;background:var(--blue);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center}
+.vsearch button svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.v-idle{text-align:center;padding:40px 24px}
+.v-idle svg{width:80px;height:80px;stroke:#D1D5DB;fill:none;stroke-width:1.2;margin-bottom:16px}
+.v-idle h3{font-size:17px;font-weight:700;margin-bottom:8px}
+.v-idle p{font-size:13px;color:var(--muted)}
+.v-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.v-banner{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border-bottom:1.5px solid #A7F3D0;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.v-banner svg{width:20px;height:20px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.v-banner p{font-size:13px;font-weight:700;color:var(--green)}
+.v-hdr{padding:20px;text-align:center;border-bottom:1px solid var(--border)}
+.v-photo{width:100px;height:100px;border-radius:18px;object-fit:cover;margin:0 auto 12px;border:3px solid var(--green);display:block}
+.v-init{width:100px;height:100px;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:white;margin:0 auto 12px}
+.v-name{font-size:18px;font-weight:800;margin-bottom:6px}
+.v-roll{background:#EEF2FF;color:var(--blue);padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block}
+.v-grid{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vf{background:var(--bg);border-radius:10px;padding:12px}
+.vf label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.vf p{font-size:13px;font-weight:600;margin-top:3px}
+.nf-card{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:var(--radius);padding:24px;text-align:center}
+.nf-card svg{width:48px;height:48px;stroke:var(--red);fill:none;stroke-width:1.5;margin-bottom:12px}
+.nf-card h3{font-size:16px;font-weight:700;color:var(--red);margin-bottom:6px}
+.nf-card p{font-size:13px;color:#991B1B}
+
+/* SETTINGS */
+.settings-body{padding:20px 16px}
+.logo-box{width:90px;height:90px;border-radius:20px;overflow:hidden;margin:0 auto 12px;border:3px solid var(--border);background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center}
+.logo-box img{width:90px;height:90px;object-fit:cover;display:block}
+.logo-box svg{width:44px;height:44px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logo-center{text-align:center;margin-bottom:24px}
+.upload-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.upload-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#logoInput{display:none}
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1F2937;color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .3s;white-space:nowrap;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:#065F46}
+.toast.err{background:#991B1B}
+
+/* LOADER */
+.loader{position:fixed;inset:0;background:rgba(255,255,255,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:8888;gap:14px}
+.loader.hidden{display:none}
+.spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader p{font-size:14px;font-weight:600;color:var(--muted)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* AUTHENTICATION */
+.auth-screen{align-items:center;justify-content:center;padding:28px 20px;background:linear-gradient(145deg,#F8FAFC,#EEF2FF)}
+.auth-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:28px 22px;box-shadow:var(--shadow);text-align:center}
+.auth-logo{width:72px;height:72px;border-radius:20px;margin:0 auto 16px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center}
+.auth-logo svg{width:38px;height:38px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.auth-card h1{font-size:21px;font-weight:800;margin-bottom:7px}
+.auth-card>p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:20px}
+#googleSignIn{display:flex;justify-content:center;min-height:44px}
+.auth-status{margin-top:16px;padding:11px 12px;border-radius:10px;font-size:12px;display:none}
+.auth-status.show{display:block}
+.auth-status.err{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+.auth-status.ok{background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0}
+.account-chip{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:7px 10px;margin-right:8px;max-width:190px}
+.account-chip .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.account-chip .acct-text{min-width:0;text-align:left}
+.account-chip .acct-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-chip .acct-role{font-size:9px;color:var(--muted)}
+.admin-badge{display:inline-flex;align-items:center;gap:6px;background:#F3E8FF;color:#6D28D9;border:1px solid #DDD6FE;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:800;margin-top:7px}
+.admin-badge svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.admin-list{padding:0 16px 28px}
+.admin-user-card{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.admin-user-avatar{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.admin-user-info{flex:1;min-width:0}
+.admin-user-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-user-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.admin-user-meta{display:flex;gap:6px;align-items:center;margin-top:6px}
+.user-status{font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px}
+.user-status.active{background:#ECFDF5;color:#047857}
+.user-status.suspended{background:#FEF2F2;color:#B91C1C}
+.user-role{font-size:10px;font-weight:700;background:#EEF2FF;color:var(--blue);padding:3px 8px;border-radius:20px}
+.admin-actions{display:flex;gap:6px;flex-shrink:0}
+.small-btn{border:1px solid var(--border);background:var(--bg);border-radius:9px;padding:7px 9px;font-size:11px;font-weight:700;cursor:pointer;color:var(--text)}
+.small-btn.danger{color:var(--red);background:#FEF2F2;border-color:#FECACA}
+.small-btn.amber{color:#92400E;background:#FFFBEB;border-color:#FDE68A}
+.admin-invite{margin:16px;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:14px}
+.admin-invite .field{margin-bottom:10px}
+.admin-invite .btn{margin-top:4px}
+.admin-summary{margin:14px 16px 10px;background:linear-gradient(135deg,#111827,#374151);color:white;border-radius:14px;padding:16px}
+.admin-summary .label{font-size:11px;opacity:.75}
+.admin-summary .value{font-size:24px;font-weight:800;margin-top:3px}
+.edit-user-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 16px 32px}
+.auth-note{font-size:11px;color:var(--muted);margin-top:14px;line-height:1.5}
+
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══ HOME ════════════════════════════════════════════════ -->
+<!-- ═══ AUTHENTICATION ═══════════════════════════════════════ -->
+<div class="screen active auth-screen" id="s-auth">
+  <div class="auth-card">
+    <div class="auth-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+    <h1>Academy Student System</h1>
+    <p>Sign in with your Google account to access the student management system.</p>
+    <div id="googleSignIn"></div>
+    <div class="auth-status" id="authStatus"></div>
+    <div class="auth-note">Only invited Google accounts can access this system. The superadmin account has full control.</div>
+  </div>
+</div>
+
+<!-- ═══ HOME ════════════════════════════════════════════════ -->
+<div class="screen" id="s-home">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="tb-logo" id="tbLogo">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="tb-info">
+        <h2 id="lblName">Loading…</h2>
+        <span id="lblRole">Authenticated User</span>
+      </div>
+    </div>
+    <div class="account-chip" id="accountChip" title="Signed-in Google account">
+      <div class="avatar" id="accountAvatar">?</div>
+      <div class="acct-text">
+        <div class="acct-name" id="accountName">Loading…</div>
+        <div class="acct-role" id="accountRole">—</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="settingsBtn" onclick="openSettings()" style="display:none" title="Settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+  <div class="scroll-area">
+    <div class="home-hero">
+      <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h1 id="lblHeroName">Academy</h1>
+      <p>Register and verify students</p>
+    </div>
+    <div class="home-stats">
+      <div><div class="stat-label">Total Students</div><div class="stat-value" id="totalCount">—</div></div>
+      <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    </div>
+    <div class="menu-list">
+      <div class="menu-card" onclick="openRegister()">
+        <div class="menu-icon c-blue"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
+        <div class="menu-text"><h3>Register Student</h3><p>Add a new student with photo &amp; details</p></div>
+        <div class="menu-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="menu-card" onclick="openManage()">
+        <div class="menu-icon c-purple"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="menu-text"><h3>Manage Students</h3><p>Search, view, edit &amp; delete records</p></div>
+        <div class="menu-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="menu-card" onclick="go('s-verify');resetVerify();">
+        <div class="menu-icon c-green"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="menu-text"><h3>Verify Student</h3><p>Search &amp; confirm a student's identity</p></div>
+        <div class="menu-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="menu-card" id="adminMenuCard" style="display:none" onclick="openAdmin()">
+        <div class="menu-icon" style="background:linear-gradient(135deg,#7C3AED,#5B21B6)"><svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.05.05a2 2 0 0 1-2.4 2.66l-.07-.04a1.7 1.7 0 0 0-1.85.12 1.7 1.7 0 0 0-.65 1.73v.08a2 2 0 0 1-3.64 0v-.08a1.7 1.7 0 0 0-.65-1.73 1.7 1.7 0 0 0-1.85-.12l-.07.04a2 2 0 0 1-2.4-2.66l.05-.05A1.7 1.7 0 0 0 6.6 15a1.7 1.7 0 0 0-1.54-1.06H5a2 2 0 0 1 0-3.88h.06A1.7 1.7 0 0 0 6.6 9a1.7 1.7 0 0 0-.34-1.88l-.05-.05a2 2 0 0 1 2.4-2.66l.07.04a1.7 1.7 0 0 0 1.85-.12 1.7 1.7 0 0 0 .65-1.73v-.08a2 2 0 0 1 3.64 0v.08a1.7 1.7 0 0 0 .65 1.73 1.7 1.7 0 0 0 1.85.12l.07-.04a2 2 0 0 1 2.4 2.66l-.05.05A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.54 1.06H21a2 2 0 0 1 0 3.88h-.06A1.7 1.7 0 0 0 19.4 15z"/></svg></div>
+        <div class="menu-text"><h3>Super Admin</h3><p>Invite, edit, suspend &amp; delete users</p></div>
+        <div class="menu-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REGISTER ════════════════════════════════════════════ -->
+<div class="screen" id="s-register">
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go('s-home');stopCam();"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h2>Register Student</h2>
+  </div>
+  <div class="scroll-area">
+    <div class="form-body">
+
+      <!-- PHOTO SECTION -->
+      <div class="sec-lbl">Student Photo</div>
+      <div class="photo-section">
+        <div class="photo-preview-wrap" id="photoPreview">
+          <div class="no-photo-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        </div>
+        <!-- Camera live view (hidden until camera opened) -->
+        <div id="camVideoWrap"><video id="camVideo" autoplay playsinline muted></video></div>
+        <canvas id="camCanvas" style="display:none"></canvas>
+
+        <!-- Action buttons — shown when no photo yet -->
+        <div id="photoActions">
+          <div class="photo-action-row">
+            <button class="photo-btn primary-btn" onclick="triggerUpload()">
+              <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Upload Photo
+            </button>
+            <button class="photo-btn" id="camOpenBtn" onclick="startCam()">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Camera
+            </button>
+          </div>
+        </div>
+
+        <!-- Capture button — only shown when camera is live -->
+        <div id="captureActions" style="display:none">
+          <div class="photo-action-row">
+            <button class="photo-btn primary-btn" onclick="snapPhoto()">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              Capture
+            </button>
+            <button class="photo-btn" onclick="stopCam()">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Retake link — only shown after photo is taken -->
+        <div id="retakeActions" style="display:none">
+          <div class="retake-link" onclick="clearPhoto()">✕ Remove photo &amp; retake</div>
+        </div>
+
+        <!-- Hidden file input for upload -->
+        <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)"/>
+      </div>
+
+      <!-- STUDENT INFO -->
+      <div class="sec-lbl">Student Information</div>
+      <div class="fgroup">
+        <div class="two-col">
+          <div class="field">
+            <label>Roll Number (Auto)</label>
+            <input type="text" id="f-roll" placeholder="Auto-generated" readonly/>
+          </div>
+          <div class="field">
+            <label>Class *</label>
+            <select id="f-class">
+              <option value="">Select</option>
+              <option>9th</option>
+              <option>10th</option><option>11th</option><option>12th</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Student Full Name *</label><input type="text" id="f-name" placeholder="Full name"/></div>
+        <div class="field"><label>Father's Name</label><input type="text" id="f-father" placeholder="Father's full name"/></div>
+        <div class="two-col">
+          <div class="field">
+            <label>Teacher</label>
+            <select id="f-section"><option value="">—</option><option>Sir Amir Sohail</option><option>Sir Tayyab</option><option>Sir Daud Jan</option><option>Sir Abid Javed</option><option>Sir Zain Ul Abideen</option><option>Sir Noor Ul Islam</option></select>
+          </div>
+          <div class="field"><label>Phone</label><input type="tel" id="f-phone" placeholder="03XX-XXXXXXX"/></div>
+        </div>
+        <div class="field"><label>Address</label><textarea id="f-address" placeholder="Home address (optional)"></textarea></div>
+      </div>
+      <button class="btn btn-primary" onclick="submitReg()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Student
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MANAGE ══════════════════════════════════════════════ -->
+<div class="screen" id="s-manage">
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go('s-home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h2>Manage Students</h2>
+  </div>
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by name or roll number…" oninput="filterList()"/>
+    </div>
+  </div>
+  <div class="s-count" id="sCount"></div>
+  <div class="scroll-area" id="sList"></div>
+</div>
+
+<!-- ═══ DETAIL ══════════════════════════════════════════════ -->
+<div class="screen" id="s-detail">
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go('s-manage')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h2>Student Profile</h2>
+  </div>
+  <div class="scroll-area" id="detailBody"></div>
+</div>
+
+<!-- ═══ VERIFY ══════════════════════════════════════════════ -->
+<div class="screen" id="s-verify">
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go('s-home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h2>Verify Student</h2>
+  </div>
+  <div class="scroll-area">
+    <div class="verify-wrap">
+      <div class="vsearch">
+        <input type="text" id="vInput" placeholder="Enter Roll Number…" onkeydown="if(event.key==='Enter')doVerify()"/>
+        <button onclick="doVerify()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      </div>
+      <div id="vResult">
+        <div class="v-idle">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <h3>Identity Verification</h3>
+          <p>Enter a Roll Number above to verify a student's identity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ SUPER ADMIN ═════════════════════════════════════════ -->
+<div class="screen" id="s-admin">
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go('s-home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h2>Super Admin Dashboard</h2>
+  </div>
+  <div class="scroll-area">
+    <div class="admin-summary">
+      <div class="label">USER ACCOUNTS</div>
+      <div class="value" id="adminUserCount">—</div>
+    </div>
+    <div class="admin-invite">
+      <div class="sec-lbl">Invite New User</div>
+      <div class="field">
+        <label>Google Account Email *</label>
+        <input type="email" id="inviteEmail" placeholder="user@gmail.com" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>User Name</label>
+        <input type="text" id="inviteName" placeholder="Office staff name" autocomplete="off"/>
+      </div>
+      <button class="btn btn-primary" onclick="inviteUserNow()">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Invite User
+      </button>
+    </div>
+    <div class="sec-lbl" style="padding:0 16px;margin-top:18px">User Accounts</div>
+    <div class="admin-list" id="adminUserList"></div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS ════════════════════════════════════════════ -->
+<div class="screen" id="s-settings">
+  <div class="back-hdr">
+    <button class="back-btn" onclick="go('s-home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <h2>Settings</h2>
+  </div>
+  <div class="scroll-area">
+    <div class="settings-body">
+      <div class="sec-lbl">Academy Logo</div>
+      <div class="logo-center">
+        <div class="logo-box" id="logoBox">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <label class="upload-btn" for="logoInput">
+          <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Upload New Logo
+        </label>
+        <input type="file" id="logoInput" accept="image/*" onchange="previewLogo(event)"/>
+      </div>
+      <div class="divider"></div>
+      <div class="sec-lbl">Academy Name</div>
+      <div class="fgroup">
+        <div class="field">
+          <label>Academy Name</label>
+          <input type="text" id="sName" placeholder="e.g. Genius Islamian Academy"/>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettingsNow()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Settings
+      </button>
+      <button class="btn btn-outline" onclick="signOutGoogle()" style="margin-top:10px">
+        Sign out / Switch Google account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EDIT OVERLAY ════════════════════════════════════════ -->
+<div class="overlay hidden" id="editOverlay" onclick="closeEditOnBg(event)">
+  <div class="edit-sheet" id="editSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit Student</div>
+
+    <!-- Edit photo -->
+    <div class="sec-lbl">Photo</div>
+    <div class="photo-section" style="margin-bottom:20px">
+      <div class="photo-preview-wrap" id="ePhotoPreview" style="margin-bottom:12px"></div>
+      <div class="photo-action-row" style="justify-content:center;gap:10px;margin-bottom:8px">
+        <button class="photo-btn primary-btn" onclick="triggerEditUpload()">
+          <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Change Photo
+        </button>
+      </div>
+      <input type="file" id="ePhotoInput" accept="image/*" style="display:none" onchange="handleEditPhoto(event)"/>
+    </div>
+
+    <div class="sec-lbl">Student Information</div>
+    <div class="fgroup">
+      <div class="field"><label>Roll Number</label><input type="text" id="e-roll" readonly style="background:var(--bg);color:var(--muted)"/></div>
+      <div class="field"><label>Student Full Name *</label><input type="text" id="e-name" placeholder="Full name"/></div>
+      <div class="field"><label>Father's Name</label><input type="text" id="e-father" placeholder="Father's name"/></div>
+      <div class="two-col">
+        <div class="field">
+          <label>Class</label>
+          <select id="e-class">
+            <option value="">Select</option>
+            <option>Nursery</option><option>KG</option>
+            <option>1st</option><option>2nd</option><option>3rd</option>
+            <option>4th</option><option>5th</option><option>6th</option>
+            <option>7th</option><option>8th</option><option>9th</option>
+            <option>10th</option><option>11th</option><option>12th</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Section</label>
+          <select id="e-section"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Phone</label><input type="tel" id="e-phone" placeholder="03XX-XXXXXXX"/></div>
+      <div class="field"><label>Address</label><textarea id="e-address" placeholder="Home address"></textarea></div>
+    </div>
+    <button class="btn btn-amber" onclick="submitEdit()" style="margin-bottom:10px">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Save Changes
+    </button>
+    <button class="btn btn-outline" onclick="closeEdit()">Cancel</button>
+  </div>
+</div>
+
+
+<!-- ═══ EDIT USER OVERLAY ═══════════════════════════════════ -->
+<div class="overlay hidden" id="userEditOverlay" onclick="closeUserEditOnBg(event)">
+  <div class="edit-user-sheet" id="userEditSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit User</div>
+    <div class="field" style="margin-bottom:14px">
+      <label>Email</label>
+      <input type="text" id="editUserEmail" readonly/>
+    </div>
+    <div class="field" style="margin-bottom:20px">
+      <label>Name</label>
+      <input type="text" id="editUserName" placeholder="User name"/>
+    </div>
+    <button class="btn btn-amber" onclick="saveUserEdit()" style="margin-bottom:10px">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Save User
+    </button>
+    <button class="btn btn-outline" onclick="closeUserEdit()">Cancel</button>
+  </div>
+</div>
+
+<!-- Loader & Toast -->
+<div class="loader hidden" id="loader"><div class="spinner"></div><p id="loaderTxt">Please wait…</p></div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+var allStudents   = [];
+var capturedB64   = "";        // for register
+var editB64       = "";        // for edit
+var camStream     = null;
+var pendingLogoB64 = "";
+var cfg = { academyName: "Academy", logoUrl: "" };
+var currentDetailRoll = "";
+var authToken = "";
+var currentUser = null;
+var adminUsers = [];
+var editingUserEmail = "";
+
+// ── EXTERNAL HOST CONFIG ─────────────────────────────────────
+// This page is hosted on GitHub Pages. Apps Script remains the secure backend.
+var GOOGLE_CLIENT_ID = "173264253939-pl6esf9suk72htmr56m3sgbamsa7e9ta.apps.googleusercontent.com";
+var API_BRIDGE_URL = "https://script.google.com/macros/s/AKfycbz5XmDi15_REy6hz8Quq5HycgrG7-upBjBTbCl2NWYDNN7RuIp9uRNj2B0MIpgc5H609A/exec?bridge=1";
+var bridgeFrame = null;
+var bridgeReady = false;
+var bridgeWaiters = [];
+var bridgeRequests = {};
+var bridgeRequestSeq = 0;
+
+// The existing application was written around google.script.run. Instead of
+// rewriting the entire UI, this compatibility layer routes those same calls
+// through the hidden Apps Script bridge iframe. This preserves your current UI
+// and all existing screens while allowing the page to live on GitHub Pages.
+function installAppsScriptBridgeShim() {
+  window.google = window.google || {};
+  window.google.script = window.google.script || {};
+  window.google.script.run = makeScriptRunner();
+
+  window.addEventListener("message", function (event) {
+    if (!bridgeFrame || event.source !== bridgeFrame.contentWindow) return;
+    var msg = event.data || {};
+    if (msg.type === "ACADEMY_BRIDGE_READY") {
+      bridgeReady = true;
+      var waiters = bridgeWaiters.slice();
+      bridgeWaiters = [];
+      waiters.forEach(function (fn) { try { fn(); } catch (e) {} });
+      return;
+    }
+    if (msg.type !== "ACADEMY_API_RESPONSE") return;
+    var req = bridgeRequests[String(msg.requestId || "")];
+    if (!req) return;
+    delete bridgeRequests[String(msg.requestId || "")];
+    clearTimeout(req.timer);
+    if (msg.result && msg.result._transportError) {
+      req.reject(new Error(msg.result.message || "Backend request failed."));
+    } else {
+      req.resolve(msg.result);
+    }
+  });
+
+  bridgeFrame = document.createElement("iframe");
+  bridgeFrame.id = "academyApiBridge";
+  bridgeFrame.title = "Backend connection";
+  bridgeFrame.setAttribute("aria-hidden", "true");
+  bridgeFrame.style.cssText = "position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;";
+  document.body.appendChild(bridgeFrame);
+  bridgeFrame.src = API_BRIDGE_URL;
+}
+
+function waitForBridge() {
+  if (bridgeReady) return Promise.resolve();
+  return new Promise(function (resolve, reject) {
+    var timer = setTimeout(function () {
+      var idx = bridgeWaiters.indexOf(resolve);
+      if (idx >= 0) bridgeWaiters.splice(idx, 1);
+      reject(new Error("Backend bridge did not load. Check the Apps Script deployment URL and access setting."));
+    }, 20000);
+    bridgeWaiters.push(function () { clearTimeout(timer); resolve(); });
+  });
+}
+
+function bridgeApiCall(action, args) {
+  return waitForBridge().then(function () {
+    return new Promise(function (resolve, reject) {
+      var id = "req_" + Date.now() + "_" + (++bridgeRequestSeq) + "_" + Math.random().toString(36).slice(2);
+      var timer = setTimeout(function () {
+        delete bridgeRequests[id];
+        reject(new Error("Backend request timed out. Please check your internet connection."));
+      }, 45000);
+      bridgeRequests[id] = {resolve: resolve, reject: reject, timer: timer};
+      bridgeFrame.contentWindow.postMessage({
+        type: "ACADEMY_API_REQUEST",
+        requestId: id,
+        action: String(action || ""),
+        args: Array.isArray(args) ? args : []
+      }, "*");
+    });
+  });
+}
+
+function makeScriptRunner() {
+  if (typeof Proxy === "undefined") {
+    throw new Error("This browser is too old for the secure backend bridge. Please use a current version of Chrome, Edge, Firefox, or Safari.");
+  }
+  var state = { success: null, failure: null };
+  var runner;
+  runner = new Proxy({}, {
+    get: function (_target, prop) {
+      if (prop === "withSuccessHandler") {
+        return function (fn) { state.success = typeof fn === "function" ? fn : null; return runner; };
+      }
+      if (prop === "withFailureHandler") {
+        return function (fn) { state.failure = typeof fn === "function" ? fn : null; return runner; };
+      }
+      if (prop === "withUserObject") {
+        return function () { return runner; };
+      }
+      if (prop === "then" || prop === "catch" || prop === "finally") return undefined;
+      return function () {
+        var args = Array.prototype.slice.call(arguments);
+        var ok = state.success;
+        var bad = state.failure;
+        state = { success: null, failure: null };
+        bridgeApiCall(String(prop), args).then(function (result) {
+          if (ok) ok(result);
+        }).catch(function (err) {
+          if (bad) bad({message: err && err.message ? err.message : String(err)});
+          else console.error(err);
+        });
+        return runner;
+      };
+    }
+  });
+  return runner;
+}
+
+// ── BOOT ──────────────────────────────────────────────────────
+window.addEventListener("load", function () {
+  installAppsScriptBridgeShim();
+  initGoogleAuth();
+});
+
+
+// ── GOOGLE AUTHENTICATION ─────────────────────────────────────
+function setAuthStatus(msg, type) {
+  var el = document.getElementById("authStatus");
+  el.textContent = msg || "";
+  el.className = "auth-status" + (msg ? " show " + (type || "") : "");
+}
+
+function initGoogleAuth() {
+  setAuthStatus("Loading secure Google sign-in…", "ok");
+  waitForGoogleIdentity(GOOGLE_CLIENT_ID, 0);
+}
+
+function waitForGoogleIdentity(clientId, attempt) {
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.initialize({
+      client_id: clientId,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    google.accounts.id.renderButton(
+      document.getElementById("googleSignIn"),
+      { theme: "outline", size: "large", text: "signin_with", shape: "rectangular", width: 280 }
+    );
+    setAuthStatus("", "");
+    return;
+  }
+  if (attempt > 50) {
+    setAuthStatus("Google sign-in library failed to load. Check your internet connection.", "err");
+    return;
+  }
+  setTimeout(function () { waitForGoogleIdentity(clientId, attempt + 1); }, 150);
+}
+
+function handleGoogleCredential(response) {
+  if (!response || !response.credential) {
+    setAuthStatus("Google did not return a valid sign-in credential.", "err");
+    return;
+  }
+  showLoad("Verifying Google account…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (!r || !r.success || !r.user) {
+        authToken = "";
+        currentUser = null;
+        setAuthStatus((r && r.message) || "Access denied.", "err");
+        return;
+      }
+      authToken = response.credential;
+      currentUser = r.user;
+      applyCurrentUser();
+      setAuthStatus("", "");
+      go("s-home");
+      loadSettings();
+      refreshCount();
+    })
+    .withFailureHandler(function (e) {
+      hideLoad();
+      authToken = "";
+      currentUser = null;
+      setAuthStatus("Authentication error: " + (e.message || "Unknown error"), "err");
+    })
+    .getAuthInfo(response.credential);
+}
+
+function applyCurrentUser() {
+  var u = currentUser || {};
+  var name = u.name || u.email || "User";
+  var initial = name.charAt(0).toUpperCase();
+  document.getElementById("accountName").textContent = name;
+  document.getElementById("accountRole").textContent = u.role === "SUPERADMIN" ? "Super Admin" : "Office Staff";
+  document.getElementById("accountAvatar").textContent = initial;
+  document.getElementById("lblRole").textContent = u.role === "SUPERADMIN" ? "Super Admin" : "Office Staff";
+  var admin = u.role === "SUPERADMIN";
+  document.getElementById("adminMenuCard").style.display = admin ? "flex" : "none";
+  document.getElementById("settingsBtn").style.display = admin ? "flex" : "none";
+}
+
+function requireClientAuth() {
+  if (!authToken || !currentUser) {
+    go("s-auth");
+    setAuthStatus("Please sign in with Google first.", "err");
+    return false;
+  }
+  return true;
+}
+
+function signOutGoogle() {
+  authToken = "";
+  currentUser = null;
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+  document.getElementById("googleSignIn").innerHTML = "";
+  setAuthStatus("You have been signed out of this app. Choose a Google account to continue.", "ok");
+  initGoogleAuth();
+  go("s-auth");
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function go(id) {
+  if (id !== "s-auth" && !authToken) {
+    id = "s-auth";
+  }
+  document.querySelectorAll(".screen").forEach(function (s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+}
+
+// ── LOADER ───────────────────────────────────────────────────
+function showLoad(msg) {
+  document.getElementById("loaderTxt").textContent = msg || "Please wait…";
+  document.getElementById("loader").classList.remove("hidden");
+}
+function hideLoad() { document.getElementById("loader").classList.add("hidden"); }
+
+// ── TOAST ────────────────────────────────────────────────────
+function toast(msg, type) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast " + (type || "");
+  el.classList.add("show");
+  setTimeout(function () { el.classList.remove("show"); }, 3500);
+}
+
+
+// ── SUPERADMIN USER MANAGEMENT ────────────────────────────────
+function openAdmin() {
+  if (!requireClientAuth()) return;
+  if (!currentUser || currentUser.role !== "SUPERADMIN") {
+    toast("Superadmin access required.", "err");
+    return;
+  }
+  go("s-admin");
+  document.getElementById("inviteEmail").value = "";
+  document.getElementById("inviteName").value = "";
+  loadAdminUsers();
+}
+
+function loadAdminUsers() {
+  if (!requireClientAuth() || !currentUser || currentUser.role !== "SUPERADMIN") return;
+  document.getElementById("adminUserList").innerHTML =
+    '<div class="empty-state"><p>Loading users…</p></div>';
+  showLoad("Loading user accounts…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        adminUsers = r.users || [];
+        renderAdminUsers(adminUsers);
+      } else {
+        document.getElementById("adminUserList").innerHTML =
+          '<div class="err-card"><p>Could not load users</p><small>' + h((r && r.message) || "") + '</small></div>';
+      }
+    })
+    .withFailureHandler(function (e) {
+      hideLoad();
+      document.getElementById("adminUserList").innerHTML =
+        '<div class="err-card"><p>Connection error</p><small>' + h(e.message) + '</small></div>';
+    })
+    .getUsers(authToken);
+}
+
+function renderAdminUsers(list) {
+  var count = list.length;
+  document.getElementById("adminUserCount").textContent = count + (count === 1 ? " account" : " accounts");
+  var el = document.getElementById("adminUserList");
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><p>No user accounts yet.</p></div>';
+    return;
+  }
+  var html = "";
+  list.forEach(function (u) {
+    var init = (u.name || u.email || "?").charAt(0).toUpperCase();
+    var isSuper = u.role === "SUPERADMIN";
+    html +=
+      '<div class="admin-user-card">' +
+        '<div class="admin-user-avatar">' + h(init) + '</div>' +
+        '<div class="admin-user-info">' +
+          '<div class="admin-user-name">' + h(u.name || "Unnamed user") + '</div>' +
+          '<div class="admin-user-email">' + h(u.email) + '</div>' +
+          '<div class="admin-user-meta">' +
+            '<span class="user-status ' + (u.status === "ACTIVE" ? "active" : "suspended") + '">' + h(u.status) + '</span>' +
+            '<span class="user-role">' + h(u.role) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="admin-actions">' +
+          (isSuper
+            ? '<span style="font-size:10px;color:var(--muted);font-weight:700">Protected</span>'
+            : '<button class="small-btn" data-email="' + h(u.email) + '" onclick="openUserEdit(this.dataset.email)">Edit</button>' +
+              '<button class="small-btn ' + (u.status === "ACTIVE" ? "amber" : "") + '" data-email="' + h(u.email) + '" data-status="' + h(u.status) + '" onclick="toggleUserStatus(this.dataset.email,this.dataset.status)">' + (u.status === "ACTIVE" ? "Suspend" : "Activate") + '</button>' +
+              '<button class="small-btn danger" data-email="' + h(u.email) + '" data-name="' + h(u.name || u.email) + '" onclick="confirmDeleteUser(this.dataset.email,this.dataset.name)">Delete</button>') +
+        '</div>' +
+      '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function inviteUserNow() {
+  if (!requireClientAuth() || !currentUser || currentUser.role !== "SUPERADMIN") return;
+  var email = (document.getElementById("inviteEmail").value || "").trim();
+  var name = (document.getElementById("inviteName").value || "").trim();
+  if (!email) { toast("Enter the user's Google email.", "err"); return; }
+  showLoad("Sending invitation…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        toast("Invitation sent to " + r.email, "ok");
+        document.getElementById("inviteEmail").value = "";
+        document.getElementById("inviteName").value = "";
+        loadAdminUsers();
+      } else {
+        toast((r && r.message) || "Invitation failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast(e.message, "err"); })
+    .inviteUser(authToken, email, name, window.location.href);
+}
+
+function openUserEdit(email) {
+  var u = adminUsers.filter(function (x) { return x.email.toLowerCase() === email.toLowerCase(); })[0];
+  if (!u || u.role === "SUPERADMIN") return;
+  editingUserEmail = u.email;
+  document.getElementById("editUserEmail").value = u.email;
+  document.getElementById("editUserName").value = u.name || "";
+  document.getElementById("userEditOverlay").classList.remove("hidden");
+}
+
+function closeUserEdit() {
+  editingUserEmail = "";
+  document.getElementById("userEditOverlay").classList.add("hidden");
+}
+
+function closeUserEditOnBg(e) {
+  if (e.target === document.getElementById("userEditOverlay")) closeUserEdit();
+}
+
+function saveUserEdit() {
+  if (!requireClientAuth() || !editingUserEmail) return;
+  var name = (document.getElementById("editUserName").value || "").trim();
+  if (!name) { toast("Name cannot be empty.", "err"); return; }
+  showLoad("Updating user…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        closeUserEdit();
+        toast("User updated.", "ok");
+        loadAdminUsers();
+      } else {
+        toast((r && r.message) || "Update failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast(e.message, "err"); })
+    .updateUser(authToken, editingUserEmail, name);
+}
+
+function toggleUserStatus(email, currentStatus) {
+  if (!requireClientAuth()) return;
+  var next = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+  var action = next === "SUSPENDED" ? "suspend" : "activate";
+  if (!confirm("Are you sure you want to " + action + " " + email + "?")) return;
+  showLoad("Updating account…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        toast(r.message, "ok");
+        loadAdminUsers();
+      } else {
+        toast((r && r.message) || "Status update failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast(e.message, "err"); })
+    .setUserStatus(authToken, email, next);
+}
+
+function confirmDeleteUser(email, name) {
+  if (!requireClientAuth()) return;
+  if (!confirm('Delete user "' + name + '" (' + email + ')?\\nThey will immediately lose access.')) return;
+  showLoad("Deleting user…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        toast("User deleted.", "ok");
+        loadAdminUsers();
+      } else {
+        toast((r && r.message) || "Delete failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast(e.message, "err"); })
+    .deleteUser(authToken, email);
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────
+function loadSettings() {
+  google.script.run
+    .withSuccessHandler(function (r) {
+      if (r && r.success && r.settings) {
+        cfg = r.settings;
+        applySettings();
+        document.getElementById("sName").value = cfg.academyName || "";
+        setLogoBox(cfg.logoUrl);
+      }
+    })
+    .withFailureHandler(function () {})
+    .getSettings(authToken);
+}
+
+function applySettings() {
+  var n = cfg.academyName || "Academy";
+  document.getElementById("lblName").textContent     = n;
+  document.getElementById("lblHeroName").textContent = n;
+  document.title = n;
+  // Update topbar logo
+  var box = document.getElementById("tbLogo");
+  if (cfg.logoUrl && cfg.logoUrl.length > 5) {
+    var img = document.createElement("img");
+    img.style.cssText = "width:38px;height:38px;object-fit:cover;border-radius:10px;";
+    img.onload = function () { box.innerHTML = ""; box.appendChild(img); };
+    img.onerror = function () {};  // keep default icon on error
+    img.src = cfg.logoUrl;
+  }
+}
+
+function openSettings() {
+  if (!requireClientAuth()) return;
+  if (!currentUser || currentUser.role !== "SUPERADMIN") {
+    toast("Superadmin access required.", "err");
+    return;
+  }
+  document.getElementById("sName").value = cfg.academyName || "";
+  setLogoBox(cfg.logoUrl);
+  pendingLogoB64 = "";
+  go("s-settings");
+}
+
+function setLogoBox(url) {
+  var box = document.getElementById("logoBox");
+  if (url && url.length > 5) {
+    box.innerHTML = "";
+    var img = document.createElement("img");
+    img.style.cssText = "width:90px;height:90px;object-fit:cover;display:block;";
+    img.onerror = function () { setLogoBox(""); };
+    img.src = url;
+    box.appendChild(img);
+  } else {
+    box.innerHTML = '<svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+  }
+}
+
+function previewLogo(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function (ev) {
+    pendingLogoB64 = ev.target.result;
+    var box = document.getElementById("logoBox");
+    box.innerHTML = "";
+    var img = document.createElement("img");
+    img.style.cssText = "width:90px;height:90px;object-fit:cover;display:block;";
+    img.src = pendingLogoB64;
+    box.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveSettingsNow() {
+  if (!requireClientAuth()) return;
+  var name = (document.getElementById("sName").value || "").trim();
+  if (!name) { toast("Academy name cannot be empty.", "err"); return; }
+  showLoad("Saving settings…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        cfg.academyName = r.academyName;
+        cfg.logoUrl     = r.logoUrl;
+        applySettings();
+        setLogoBox(r.logoUrl);
+        pendingLogoB64 = "";
+        toast("Settings saved!", "ok");
+      } else {
+        toast((r && r.message) || "Save failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast("Error: " + e.message, "err"); })
+    .saveSettings(authToken, name, pendingLogoB64 || "");
+}
+
+// ── TOTAL COUNT ───────────────────────────────────────────────
+function refreshCount() {
+  google.script.run
+    .withSuccessHandler(function (r) {
+      if (r) document.getElementById("totalCount").textContent = r.count !== undefined ? r.count : "—";
+    })
+    .withFailureHandler(function () {})
+    .getTotalStudents(authToken);
+}
+
+// ── CAMERA HELPERS ────────────────────────────────────────────
+function startCam() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast("Camera not supported. Please upload a photo instead.", "err"); return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+    .then(function (stream) {
+      camStream = stream;
+      var vid = document.getElementById("camVideo");
+      vid.srcObject = stream;
+      document.getElementById("camVideoWrap").style.display = "block";
+      document.getElementById("photoActions").style.display  = "none";
+      document.getElementById("captureActions").style.display = "block";
+      document.getElementById("retakeActions").style.display  = "none";
+    })
+    .catch(function (err) {
+      // Friendly permission message
+      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        toast("Camera permission denied. Please allow camera access in your browser settings, or use Upload Photo instead.", "err");
+      } else {
+        toast("Camera error: " + err.message + ". Try uploading a photo instead.", "err");
+      }
+    });
+}
+
+function stopCam() {
+  if (camStream) { camStream.getTracks().forEach(function (t) { t.stop(); }); camStream = null; }
+  document.getElementById("camVideoWrap").style.display   = "none";
+  document.getElementById("captureActions").style.display = "none";
+  document.getElementById("photoActions").style.display   = "block";
+}
+
+function snapPhoto() {
+  var vid    = document.getElementById("camVideo");
+  var canvas = document.getElementById("camCanvas");
+  canvas.width  = vid.videoWidth  || 640;
+  canvas.height = vid.videoHeight || 480;
+  canvas.getContext("2d").drawImage(vid, 0, 0, canvas.width, canvas.height);
+  capturedB64 = canvas.toDataURL("image/jpeg", 0.82);
+  showPhotoPreview(capturedB64, "photoPreview");
+  stopCam();
+  document.getElementById("photoActions").style.display  = "none";
+  document.getElementById("retakeActions").style.display = "block";
+}
+
+function triggerUpload() {
+  document.getElementById("photoFileInput").click();
+}
+
+function handlePhotoUpload(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function (ev) {
+    capturedB64 = ev.target.result;
+    showPhotoPreview(capturedB64, "photoPreview");
+    document.getElementById("photoActions").style.display  = "none";
+    document.getElementById("retakeActions").style.display = "block";
+  };
+  reader.readAsDataURL(file);
+  e.target.value = ""; // reset so same file can be chosen again
+}
+
+function showPhotoPreview(src, boxId) {
+  var box = document.getElementById(boxId);
+  box.innerHTML = "";
+  var img = document.createElement("img");
+  img.src   = src;
+  img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;border-radius:13px;";
+  box.appendChild(img);
+  box.classList.add("has-photo");
+}
+
+function clearPhoto() {
+  capturedB64 = "";
+  var box = document.getElementById("photoPreview");
+  box.innerHTML = '<div class="no-photo-icon"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
+  box.classList.remove("has-photo");
+  document.getElementById("photoActions").style.display  = "block";
+  document.getElementById("retakeActions").style.display = "none";
+  document.getElementById("photoFileInput").value = "";
+}
+
+// ── REGISTER ─────────────────────────────────────────────────
+function openRegister() {
+  if (!requireClientAuth()) return;
+  go("s-register");
+  clearRegForm();
+  // Auto-generate roll number
+  google.script.run
+    .withSuccessHandler(function (r) {
+      if (r && r.rollNo) document.getElementById("f-roll").value = r.rollNo;
+    })
+    .withFailureHandler(function () {})
+    .getNextRollNumber(authToken);
+}
+
+function clearRegForm() {
+  document.getElementById("f-roll").value    = "";
+  document.getElementById("f-name").value    = "";
+  document.getElementById("f-father").value  = "";
+  document.getElementById("f-phone").value   = "";
+  document.getElementById("f-address").value = "";
+  document.getElementById("f-class").selectedIndex   = 0;
+  document.getElementById("f-section").selectedIndex = 0;
+  clearPhoto();
+  stopCam();
+}
+
+function submitReg() {
+  if (!requireClientAuth()) return;
+  var rollNo  = (document.getElementById("f-roll").value    || "").trim();
+  var name    = (document.getElementById("f-name").value    || "").trim();
+  var father  = (document.getElementById("f-father").value  || "").trim();
+  var cls     = (document.getElementById("f-class").value   || "").trim();
+  var section = (document.getElementById("f-section").value || "").trim();
+  var phone   = (document.getElementById("f-phone").value   || "").trim();
+  var address = (document.getElementById("f-address").value || "").trim();
+
+  if (!rollNo) { toast("Roll Number is missing. Please try again.", "err"); return; }
+  if (!name)   { toast("Student Name is required.", "err"); return; }
+
+  showLoad("Registering student…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        toast("✓ Student " + r.rollNo + " registered!", "ok");
+        clearRegForm();
+        refreshCount();
+        go("s-home");
+      } else {
+        toast((r && r.message) || "Registration failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast("Error: " + e.message, "err"); })
+    .registerStudent(authToken, { rollNo: rollNo, name: name, father: father, cls: cls,
+                       section: section, phone: phone, address: address, photoBase64: capturedB64 });
+}
+
+// ── MANAGE STUDENTS ───────────────────────────────────────────
+function openManage() {
+  if (!requireClientAuth()) return;
+  go("s-manage");
+  document.getElementById("searchInput").value = "";
+  document.getElementById("sCount").textContent = "";
+  document.getElementById("sList").innerHTML =
+    '<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><p>Loading…</p></div>';
+  showLoad("Loading students…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        allStudents = r.students || [];
+        renderList(allStudents);
+      } else {
+        document.getElementById("sList").innerHTML =
+          '<div class="err-card"><p>Could not load students</p><small>' + h((r && r.message) || "") + '</small></div>';
+      }
+    })
+    .withFailureHandler(function (e) {
+      hideLoad();
+      document.getElementById("sList").innerHTML =
+        '<div class="err-card"><p>Connection error</p><small>' + h(e.message) + '</small></div>';
+    })
+    .getAllStudents(authToken);
+}
+
+function renderList(list) {
+  var countEl = document.getElementById("sCount");
+  var listEl  = document.getElementById("sList");
+  countEl.textContent = list.length + " student" + (list.length !== 1 ? "s" : "");
+  if (!list.length) {
+    listEl.innerHTML =
+      '<div class="empty-state">' +
+      '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>' +
+      '<p>No students found.</p></div>';
+    return;
+  }
+  var html = "";
+  for (var i = 0; i < list.length; i++) {
+    var s = list[i];
+    var init = s.name ? s.name.charAt(0).toUpperCase() : "?";
+    var avatarHtml = s.photoUrl && s.photoUrl.length > 5
+      ? '<img class="s-avatar" src="' + h(s.photoUrl) + '" alt="" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\';" />' +
+        '<div class="s-init" style="display:none">' + init + '</div>'
+      : '<div class="s-init">' + init + '</div>';
+    var clsLabel = s.cls ? 'Class ' + h(s.cls) + (s.section ? ' – ' + h(s.section) : '') : '';
+    html +=
+      '<div class="student-card" onclick="openDetail(\'' + h(s.rollNo) + '\')">' +
+      avatarHtml +
+      '<div class="s-info">' +
+        '<div class="s-name">' + h(s.name) + '</div>' +
+        '<div class="s-roll">Roll: ' + h(s.rollNo) + '</div>' +
+        (clsLabel ? '<span class="s-cls">' + clsLabel + '</span>' : '') +
+      '</div>' +
+      '<div class="s-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>' +
+      '</div>';
+  }
+  listEl.innerHTML = html;
+}
+
+function filterList() {
+  var q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+  if (!q) { renderList(allStudents); return; }
+  renderList(allStudents.filter(function (s) {
+    return (s.rollNo || "").toLowerCase().indexOf(q) > -1 ||
+           (s.name   || "").toLowerCase().indexOf(q) > -1 ||
+           (s.father || "").toLowerCase().indexOf(q) > -1;
+  }));
+}
+
+// ── STUDENT DETAIL ────────────────────────────────────────────
+function openDetail(rollNo) {
+  var s = allStudents.filter(function (x) { return x.rollNo === rollNo; })[0];
+  if (!s) { toast("Student not found.", "err"); return; }
+  currentDetailRoll = rollNo;
+  var init = s.name ? s.name.charAt(0).toUpperCase() : "?";
+  
+  // ✅ FIX: Removed the escaped double quotes around d-init to prevent breaking the HTML attribute
+  var photoHtml = s.photoUrl && s.photoUrl.length > 5
+    ? '<img class="d-photo" src="' + h(s.photoUrl) + '" alt="" onerror="this.outerHTML=\'<div class=d-init>' + init + '</div>\'" />'
+    : '<div class="d-init">' + init + '</div>';
+    
+  var cls = s.cls ? 'Class ' + h(s.cls) + (s.section ? ' – ' + h(s.section) : '') : '';
+  
+  // ... (keep the rest of the function the same)
+  document.getElementById("detailBody").innerHTML =
+    '<div class="detail-hero">' +
+      photoHtml +
+      '<h2>' + h(s.name) + '</h2>' +
+      '<div class="d-roll">Roll No: ' + h(s.rollNo) + '</div>' +
+      (cls ? '<span class="d-badge">' + cls + '</span>' : '') +
+    '</div>' +
+    '<div class="dfields">' +
+      drow("#DBEAFE","#1D4ED8",'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',          "Father's Name", s.father||"—") +
+      drow("#D1FAE5","#065F46",'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.33-6.78 19.79 19.79 0 0 1-3.09-8.44A2 2 0 0 1 3.59 1.5h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6.72 6.72l1.56-1.56a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>', "Phone", s.phone||"—") +
+      drow("#FEF3C7","#92400E",'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>', "Address", s.address||"—") +
+      drow("#EDE9FE","#5B21B6",'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>', "Registered", s.date||"—") +
+    '</div>' +
+    '<div class="action-row">' +
+      '<button class="btn btn-amber" onclick="openEdit(\'' + h(s.rollNo) + '\')">' +
+        '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+        ' Edit' +
+      '</button>' +
+      '<button class="btn btn-danger" onclick="confirmDelete(\'' + h(s.rollNo) + '\',\'' + h(s.name) + '\')">' +
+        '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>' +
+        ' Delete' +
+      '</button>' +
+    '</div>';
+  go("s-detail");
+}
+
+function drow(bg, iconColor, iconPath, label, value) {
+  return '<div class="drow">' +
+    '<div class="drow-icon" style="background:' + bg + ';"><svg viewBox="0 0 24 24" fill="none" stroke="' + iconColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + iconPath + '</svg></div>' +
+    '<div class="drow-text"><label>' + label + '</label><p>' + h(value) + '</p></div>' +
+    '</div>';
+}
+
+function confirmDelete(rollNo, name) {
+  if (!requireClientAuth()) return;
+  if (!confirm('Delete "' + name + '" (Roll: ' + rollNo + ')?\nThis cannot be undone.')) return;
+  showLoad("Deleting…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        toast("Student deleted.", "ok");
+        allStudents = allStudents.filter(function (s) { return s.rollNo !== rollNo; });
+        refreshCount();
+        go("s-manage");
+        renderList(allStudents);
+      } else {
+        toast((r && r.message) || "Delete failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast(e.message, "err"); })
+    .deleteStudent(authToken, rollNo);
+}
+
+// ── EDIT STUDENT ─────────────────────────────────────────────
+function openEdit(rollNo) {
+  var s = allStudents.filter(function (x) { return x.rollNo === rollNo; })[0];
+  if (!s) return;
+  editB64 = "";
+  // Populate form
+  document.getElementById("e-roll").value    = s.rollNo;
+  document.getElementById("e-name").value    = s.name;
+  document.getElementById("e-father").value  = s.father;
+  document.getElementById("e-phone").value   = s.phone;
+  document.getElementById("e-address").value = s.address;
+  // Set class select
+  var clsSel = document.getElementById("e-class");
+  for (var i = 0; i < clsSel.options.length; i++) {
+    if (clsSel.options[i].value === s.cls) { clsSel.selectedIndex = i; break; }
+  }
+  // Set section select
+  var secSel = document.getElementById("e-section");
+  for (var j = 0; j < secSel.options.length; j++) {
+    if (secSel.options[j].value === s.section) { secSel.selectedIndex = j; break; }
+  }
+  // Show current photo
+  var init = s.name ? s.name.charAt(0).toUpperCase() : "?";
+  var box  = document.getElementById("ePhotoPreview");
+  box.classList.remove("has-photo");
+  if (s.photoUrl && s.photoUrl.length > 5) {
+    box.innerHTML = "";
+    var img = document.createElement("img");
+    img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;border-radius:13px;";
+    img.src = s.photoUrl;
+    box.appendChild(img);
+    box.classList.add("has-photo");
+  } else {
+    box.innerHTML = '<div class="no-photo-icon"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#D1D5DB" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
+  }
+  // Show overlay
+  document.getElementById("editOverlay").classList.remove("hidden");
+  document.getElementById("editSheet").scrollTop = 0;
+}
+
+function closeEditOnBg(e) {
+  if (e.target === document.getElementById("editOverlay")) closeEdit();
+}
+function closeEdit() {
+  document.getElementById("editOverlay").classList.add("hidden");
+  editB64 = "";
+}
+
+function triggerEditUpload() {
+  document.getElementById("ePhotoInput").click();
+}
+
+function handleEditPhoto(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function (ev) {
+    editB64 = ev.target.result;
+    showPhotoPreview(editB64, "ePhotoPreview");
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+}
+
+function submitEdit() {
+  if (!requireClientAuth()) return;
+  var rollNo  = document.getElementById("e-roll").value;
+  var name    = (document.getElementById("e-name").value    || "").trim();
+  var father  = (document.getElementById("e-father").value  || "").trim();
+  var cls     = (document.getElementById("e-class").value   || "").trim();
+  var section = (document.getElementById("e-section").value || "").trim();
+  var phone   = (document.getElementById("e-phone").value   || "").trim();
+  var address = (document.getElementById("e-address").value || "").trim();
+  if (!name) { toast("Student Name is required.", "err"); return; }
+  showLoad("Saving changes…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        // Update local data
+        for (var i = 0; i < allStudents.length; i++) {
+          if (allStudents[i].rollNo === rollNo) {
+            allStudents[i].name    = name;
+            allStudents[i].father  = father;
+            allStudents[i].cls     = cls;
+            allStudents[i].section = section;
+            allStudents[i].phone   = phone;
+            allStudents[i].address = address;
+            if (r.photoUrl) allStudents[i].photoUrl = r.photoUrl;
+            break;
+          }
+        }
+        closeEdit();
+        toast("Student updated!", "ok");
+        // Refresh detail view
+        openDetail(rollNo);
+      } else {
+        toast((r && r.message) || "Update failed.", "err");
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast(e.message, "err"); })
+    .updateStudent(authToken, rollNo, { name: name, father: father, cls: cls,
+                              section: section, phone: phone, address: address,
+                              photoBase64: editB64 });
+}
+
+// ── VERIFY ───────────────────────────────────────────────────
+function resetVerify() {
+  document.getElementById("vInput").value = "";
+  document.getElementById("vResult").innerHTML =
+    '<div class="v-idle"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><h3>Identity Verification</h3><p>Enter a Roll Number above to verify a student\'s identity.</p></div>';
+}
+
+function doVerify() {
+  if (!requireClientAuth()) return;
+  var roll = (document.getElementById("vInput").value || "").trim();
+  if (!roll) { toast("Enter a Roll Number first.", "err"); return; }
+  showLoad("Verifying…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      var div = document.getElementById("vResult");
+      if (r && r.success) {
+        var s = r.student;
+        var init = s.name ? s.name.charAt(0).toUpperCase() : "?";
+        
+        // ✅ FIX: Removed the escaped double quotes around v-init
+        var photoHtml = s.photoUrl && s.photoUrl.length > 5
+          ? '<img class="v-photo" src="' + h(s.photoUrl) + '" alt="" onerror="this.outerHTML=\'<div class=v-init>' + init + '</div>\'" />'
+          : '<div class="v-init">' + init + '</div>';
+          
+        var cls = s.cls ? h(s.cls) + (s.section ? ' – ' + h(s.section) : '') : '—';
+        
+        // ... (keep the rest of the innerHTML generation the same)
+        div.innerHTML =
+          '<div class="v-banner"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg><p>Verified — Enrolled Student</p></div>' +
+          '<div class="v-card">' +
+            '<div class="v-hdr">' + photoHtml + '<div class="v-name">' + h(s.name) + '</div><div class="v-roll">Roll: ' + h(s.rollNo) + '</div></div>' +
+            '<div class="v-grid">' +
+              vf("Father", s.father||"—") + vf("Class", cls) +
+              vf("Phone",  s.phone ||"—") + vf("Registered", s.date||"—") +
+            '</div>' +
+          '</div>';
+      } else {
+        div.innerHTML =
+          '<div class="nf-card">' +
+            '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' +
+            '<h3>Not Found</h3>' +
+            '<p>No student with Roll No <strong>' + h(roll) + '</strong> found.</p>' +
+          '</div>';
+      }
+    })
+    .withFailureHandler(function (e) { hideLoad(); toast("Error: " + e.message, "err"); })
+    .searchStudentByRoll(authToken, roll);
+}
+function vf(l, v) { return '<div class="vf"><label>' + l + '</label><p>' + h(v) + '</p></div>'; }
+
+// ── UTIL ─────────────────────────────────────────────────────
+function h(s) {
+  if (s === null || s === undefined) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+</script>
+</body>
+</html>
