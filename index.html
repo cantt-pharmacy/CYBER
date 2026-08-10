@@ -641,7 +641,37 @@ function installAppsScriptBridgeShim() {
   window.google.script.run = makeScriptRunner();
 
   window.addEventListener("message", function (event) {
-    if (!bridgeFrame || event.source !== bridgeFrame.contentWindow) return;
+    var msg = event.data || {};
+
+    if (msg.type === "ACADEMY_BRIDGE_READY") {
+        bridgeReady = true;
+
+        var waiters = bridgeWaiters.slice();
+        bridgeWaiters = [];
+
+        waiters.forEach(function (fn) {
+            try {
+                fn();
+            } catch (e) {}
+        });
+
+        return;
+    }
+
+    if (msg.type !== "ACADEMY_API_RESPONSE") return;
+
+    var req = bridgeRequests[String(msg.requestId || "")];
+    if (!req) return;
+
+    delete bridgeRequests[String(msg.requestId || "")];
+    clearTimeout(req.timer);
+
+    if (msg.result && msg.result._transportError) {
+        req.reject(new Error(msg.result.message || "Backend request failed."));
+    } else {
+        req.resolve(msg.result);
+    }
+});
     var msg = event.data || {};
     if (msg.type === "ACADEMY_BRIDGE_READY") {
       bridgeReady = true;
