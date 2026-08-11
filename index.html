@@ -1607,3 +1607,29 @@ function h(s) {
 </script>
 </body>
 </html>
+function confirmDeleteUser(email, name) {
+  if (!requireClientAuth()) return;
+  if (!confirm('Delete user "' + name + '" (' + email + ')?\\nThey will immediately lose access.')) return;
+  showLoad("Deleting user…");
+  google.script.run
+    .withSuccessHandler(function (r) {
+      hideLoad();
+      if (r && r.success) {
+        toast("User deleted successfully.", "ok");
+        loadAdminUsers();
+      } else {
+        toast((r && r.message) || "Failed to delete user.", "err");
+      }
+    })
+    .withFailureHandler(function (e) {
+      hideLoad();
+      toast(e.message || "An error occurred.", "err");
+    })
+    .deleteUser(authToken, email);
+}
+
+/* Ensure any other missing functions (like registerStudent, filterList) are also pasted here before closing the script */
+
+</script>
+</body>
+</html>
