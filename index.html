@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -647,6 +648,7 @@ function installAppsScriptBridgeShim() {
   window.addEventListener("message", function (event) {
     var msg = event.data || {};
     if (msg.bridgeToken !== BRIDGE_TOKEN) return;
+
     if (msg.type === "ACADEMY_BRIDGE_READY") {
       bridgeReady = true;
       var waiters = bridgeWaiters.slice();
@@ -654,11 +656,14 @@ function installAppsScriptBridgeShim() {
       waiters.forEach(function (fn) { try { fn(); } catch (e) {} });
       return;
     }
+
     if (msg.type !== "ACADEMY_API_RESPONSE") return;
     var req = bridgeRequests[String(msg.requestId || "")];
     if (!req) return;
+
     delete bridgeRequests[String(msg.requestId || "")];
     clearTimeout(req.timer);
+
     if (msg.result && msg.result._transportError) {
       req.reject(new Error(msg.result.message || "Backend request failed."));
     } else {
@@ -668,17 +673,10 @@ function installAppsScriptBridgeShim() {
 
   bridgeFrame = document.createElement("iframe");
   bridgeFrame.id = "academyApiBridge";
+  bridgeFrame.name = "academyApiBridgeFrame_" + Math.random().toString(36).slice(2);
   bridgeFrame.title = "Backend connection";
   bridgeFrame.setAttribute("aria-hidden", "true");
   bridgeFrame.style.cssText = "position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none;";
-  bridgeFrame.addEventListener("load", function () {
-    try {
-      bridgeFrame.contentWindow.postMessage({
-        type: "ACADEMY_BRIDGE_INIT",
-        bridgeToken: BRIDGE_TOKEN
-      }, "*");
-    } catch (e) {}
-  });
   document.body.appendChild(bridgeFrame);
   bridgeFrame.src = API_BRIDGE_URL;
 }
@@ -702,14 +700,37 @@ function bridgeApiCall(action, args) {
       var timer = setTimeout(function () {
         delete bridgeRequests[id];
         reject(new Error("Backend request timed out. Please check your internet connection."));
-      }, 45000);
+      }, 60000);
+
       bridgeRequests[id] = {resolve: resolve, reject: reject, timer: timer};
-      bridgeFrame.contentWindow.postMessage({
-        type: "ACADEMY_API_REQUEST",
-        requestId: id,
-        action: String(action || ""),
-        args: Array.isArray(args) ? args : []
-      }, "*");
+
+      // IMPORTANT: Use a real HTTP POST to the Apps Script web app. This avoids
+      // the nested iframe/sandbox problem of sending messages into Apps Script.
+      var form = document.createElement("form");
+      form.method = "POST";
+      form.action = API_BRIDGE_BASE_URL;
+      form.target = bridgeFrame.name;
+      form.style.display = "none";
+
+      function addField(name, value) {
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value == null ? "" : String(value);
+        form.appendChild(input);
+      }
+
+      addField("bridge", "1");
+      addField("bridgeToken", BRIDGE_TOKEN);
+      addField("requestId", id);
+      addField("action", String(action || ""));
+      addField("args", JSON.stringify(Array.isArray(args) ? args : []));
+
+      document.body.appendChild(form);
+      form.submit();
+      setTimeout(function () {
+        try { form.remove(); } catch (e) {}
+      }, 1000);
     });
   });
 }
